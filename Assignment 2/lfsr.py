@@ -21,7 +21,7 @@ class LFSR:
         else:
             self.state = Bits(state, length=self.length)
 
-        self.output = None
+        self.output = self.state[-1]
         self.feedback = None
 
 
@@ -30,8 +30,8 @@ class LFSR:
 
     def __next__(self):
         self.feedback = (self.poly_bits & self.state).parity_bit()
-        self.output = self.state[-1]
         self.state = Bits([self.feedback] + self.state[:-1])
+        self.output = self.state[-1]
         return self.output
 
     def run_steps(self, N=1, state=None):
