@@ -24,7 +24,6 @@ class LFSR:
         self.output = None
         self.feedback = None
 
-
     def __iter__(self):
         return self
 
@@ -62,43 +61,41 @@ class LFSR:
     def __str__(self):
         return f"LFSR(state={str(self.state)}, poly={self.poly})"
     
-
-
+    
 def berlekamp_massey(bits):
     N = len(bits)
-    P = Bits([1])              # P(x)
+    P = Bits([1])              # feedback polynomial of LFSR -> leftmost bit is x^0
     Q = Bits([1])              # Q(x)
-    m = 0
-    r = 1
+    m = 0                      # degree of P(x)
+    r = 1                      
 
-    for tau in range(N):
+    for t in range(N):
         # Compute discrepancy d
         d = 0
-        for j in range(len(P)):
-            if tau - j >= 0:
-                d ^= P[j] & bits[tau - j]
+        for i in range(len(P)):
+            if t - i >= 0:
+                d ^= P[i] & bits[t - i]
 
         if d == 1:
-            if 2 * m <= tau:
-                R = Bits(P.bits[:])      # copy of P
-                shifted_Q = Bits([0] * r + Q.bits)
-                # Pad both to same length
+            if 2 * m <= t:
+                R = P.copy()
+                shifted_Q = Q.copy().pad_left(r)  # Left shift Q by r
+                # equalize lengths
                 max_len = max(len(P), len(shifted_Q))
-                P = Bits([0] * (max_len - len(P)) + P.bits)
-                shifted_Q = Bits([0] * (max_len - len(shifted_Q)) + shifted_Q.bits)
+                P = P.pad_right(max_len - len(P))
+                shifted_Q = shifted_Q.pad_right(max_len - len(shifted_Q))
                 P = P ^ shifted_Q
-
                 Q = R
-                m = tau + 1 - m
+                m = t + 1 - m
                 r = 0
             else:
-                shifted_Q = Bits([0] * r + Q.bits)
-                # Pad both to same length
+                shifted_Q = Q.copy().pad_left(r)  # Left shift Q by r
                 max_len = max(len(P), len(shifted_Q))
-                P = Bits([0] * (max_len - len(P)) + P.bits)
-                shifted_Q = Bits([0] * (max_len - len(shifted_Q)) + shifted_Q.bits)
+                P = P.pad_right(max_len - len(P))
+                shifted_Q = shifted_Q.pad_right(max_len - len(shifted_Q))
                 P = P ^ shifted_Q
 
         r += 1
 
-    return P
+    return {i for i, bit in enumerate(P) if bit}
+

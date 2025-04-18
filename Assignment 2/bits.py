@@ -81,3 +81,21 @@ class Bits:
         if not isinstance(other, Bits):
             return False
         return self.bits == other.bits
+    
+    """function for padding bits to the left"""
+    def pad_left(self, length):
+        if length < 0:
+            raise ValueError("Length must be non-negative")
+        self.bits = [False] * length + self.bits
+        return self
+    
+    """function for padding bits to the right"""
+    def pad_right(self, length):
+        if length < 0:
+            raise ValueError("Length must be non-negative")
+        self.bits = self.bits + [False] * length
+        return self
+    
+    """add a copy function"""
+    def copy(self):
+        return Bits(self.bits[:])
