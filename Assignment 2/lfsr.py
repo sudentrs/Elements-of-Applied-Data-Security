@@ -61,6 +61,7 @@ class LFSR:
 
     def __str__(self):
         return f"LFSR(state={str(self.state)}, poly={self.poly})"
+    
 
 
 def berlekamp_massey(bits):

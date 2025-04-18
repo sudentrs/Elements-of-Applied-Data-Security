@@ -76,3 +76,8 @@ class Bits:
     
     def reverse(self):
         self.bits.reverse()
+        
+    def __eq__(self, other):
+        if not isinstance(other, Bits):
+            return False
+        return self.bits == other.bits
