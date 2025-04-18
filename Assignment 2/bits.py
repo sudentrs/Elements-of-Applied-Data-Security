@@ -99,3 +99,4 @@ class Bits:
     """add a copy function"""
     def copy(self):
         return Bits(self.bits[:])
+    
