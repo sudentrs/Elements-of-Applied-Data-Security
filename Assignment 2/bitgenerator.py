@@ -33,11 +33,11 @@ class AlternatingStep:
         output_sequence = []
         for _ in range(op):
             output_sequence.append(next(self))
-        return output_sequence
-        
-        """print(f"t=0   LFSRC={self.lfsrC.state} bc={self.lfsrC.output}   LFSR0={self.lfsr0.state} b0={self.lfsr0.output}   LFSR1={self.lfsr1.state} b1={self.lfsr1.output}   output={self.output}")
+        return Bits(output_sequence)
+
+
+"""print(f"t=0   LFSRC={self.lfsrC.state} bc={self.lfsrC.output}   LFSR0={self.lfsr0.state} b0={self.lfsr0.output}   LFSR1={self.lfsr1.state} b1={self.lfsr1.output}   output={self.output}")
         output_sequence = []
         for t in range(op):
             output_sequence.append(next(self))
-            print(f"t={t+1}   LFSRC={self.lfsrC.state} bc={self.lfsrC.output}   LFSR0={self.lfsr0.state} b0={self.lfsr0.output}   LFSR1={self.lfsr1.state} b1={self.lfsr1.output}   output={self.output}")
-"""
+            print(f"t={t+1}   LFSRC={self.lfsrC.state} bc={self.lfsrC.output}   LFSR0={self.lfsr0.state} b0={self.lfsr0.output}   LFSR1={self.lfsr1.state} b1={self.lfsr1.output}   output={self.output}")"""
