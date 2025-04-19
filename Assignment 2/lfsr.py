@@ -40,8 +40,8 @@ class LFSR:
             else:
                 self.state = Bits(state, length=self.length)
 
-        output_bits = []
-        for i in range(N):
+        output_bits = [self.output]
+        for i in range(1, N):
             output_bits.append(next(self))
         return Bits(output_bits)
 
