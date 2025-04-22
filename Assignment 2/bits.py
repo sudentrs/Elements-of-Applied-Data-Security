@@ -14,6 +14,15 @@ class Bits:
         else:  
             self.bits = [bool(b) for b in value]
     
+    """def __getitem__(self, index):
+        if isinstance(index, slice):
+            return Bits(self.bits[index])
+        elif isinstance(index, int):
+            if index < 0:
+                index += len(self.bits)
+            if index < 0 or index >= len(self.bits):
+                raise IndexError("Index out of range")
+        return self.bits[index]"""
     def __getitem__(self, index):
         return self.bits[index]
     
@@ -21,7 +30,7 @@ class Bits:
         self.bits[index] = bool(value)
     
     def parity_bit(self):   
-        return sum(self.bits) % 2 
+        return sum(self.bits) % 2
     
     def __len__(self):
         return len(self.bits)
@@ -48,39 +57,26 @@ class Bits:
             raise ValueError("Bit strings must be of the same length")
         return Bits([a & b for a, b in zip(self.bits, other.bits)])
     
-    #?
     def __add__(self, other):
         return Bits(self.bits + other.bits)
     
-    #?
     def __mul__(self, scalar):
-        if not isinstance(scalar, int) or scalar < 0:
+        if type(scalar) != int or scalar < 0:
             raise ValueError("Can only multiply by a non-negative integer")
         return Bits(self.bits * scalar)
     
-    #?
-    def to_int(self):
-        return int(str(self), 2)
+    def __eq__(self, other):
+        if type(other) is not Bits:
+            raise ValueError("Can only compare with another Bits object")
+        return self.bits == other.bits
 
-    #?
     def to_bytes(self):
         pad_len = (8 - len(self.bits) % 8) % 8
-        padded = self.bits + [False] * pad_len
-        result = bytearray()
-        for i in range(0, len(padded), 8):
-            byte = 0
-            for bit in padded[i:i+8]:
-                byte = (byte << 1) | bit
-            result.append(byte)
-        return bytes(result)
-    
-    def reverse(self):
-        self.bits.reverse()
-        
-    def __eq__(self, other):
-        if not isinstance(other, Bits):
-            return False
-        return self.bits == other.bits
+        padded = [False] * pad_len + self.bits  # pad left for MSB-first
+        return bytes(
+            int(''.join(str(int(b)) for b in padded[i:i+8]), 2)
+            for i in range(0, len(padded), 8)
+        )
     
     """function for padding bits to the left"""
     def pad_left(self, length):
@@ -96,7 +92,17 @@ class Bits:
         self.bits = self.bits + [False] * length
         return self
     
-    """add a copy function"""
+    """a copy function"""
     def copy(self):
         return Bits(self.bits[:])
     
+def polynomial_to_bits(degrees):
+    """ input polnomial degress: {5, 2, 0}
+        output bits: {1, 0, 1, 0, 0, 1} -> {p_1, ..., p_m-1, p_m}"""
+    max_deg = max(degrees)
+    bit_list = [1 if i in degrees else 0 for i in range(max_deg+1)]
+    return Bits(bit_list)
+    
+
+
+

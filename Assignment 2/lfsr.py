@@ -1,11 +1,4 @@
-from bits import Bits
-
-def polynomial_to_bits(degrees):
-    """ input polnomial degress: {5, 2, 0}
-        output bits: {1, 0, 1, 0, 0, 1} -> {p_1, ..., p_m-1, p_m}"""
-    max_deg = max(degrees)
-    bit_list = [1 if i in degrees else 0 for i in range(max_deg+1)]
-    return Bits(bit_list)
+from bits import Bits, polynomial_to_bits
 
 class LFSR:
     
