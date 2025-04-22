@@ -5,11 +5,11 @@ class LFSR:
     def __init__(self, poly, state=None):       
         self.poly = sorted(set(poly))
         self.length = max(self.poly)
-        self.poly_bits = Bits(polynomial_to_bits(self.poly).bits[1:]) # ignore p_0
+        self.poly_bits = polynomial_to_bits(self.poly)[1:] # ignore p_0
 
         if state is None:
             self.state = Bits([1] * self.length)
-        elif isinstance(state, Bits):
+        elif type(state) is Bits:
             self.state = Bits(state.bits[:self.length])
         else:
             self.state = Bits(state, length=self.length)
@@ -21,35 +21,55 @@ class LFSR:
         return self
 
     def __next__(self):
+        #print(f"poly_bits: {self.poly_bits}, state: {self.state}")
         self.feedback = (self.poly_bits & self.state).parity_bit()
-        self.state = Bits([self.feedback] + self.state[:-1])
+        self.state = Bits([self.feedback]) + self.state[:-1]
         self.output = self.state[-1]
         return self.output
 
     def run_steps(self, N=1, state=None):
+        """Returns the next N bits of the LFSR starting from the given state."""
         if state is not None:
             if type(state) is Bits:
                 self.state = Bits(state.bits[:self.length])
             else:
                 self.state = Bits(state, length=self.length)
 
-        output_bits = [self.output]
+        output_bits = [self.state[-1]]
         for i in range(1, N):
             output_bits.append(next(self))
         return Bits(output_bits)
 
     def cycle(self, state=None):
+        """Returns the cycle of the LFSR starting from the given state."""
         if state is not None:
             if type(state) is Bits:
                 self.state = Bits(state.bits[:self.length])
             else:
                 self.state = Bits(state, length=self.length)
 
-        initial_state = Bits(self.state.bits[:])
-        output = [next(self)]
-        while self.state != initial_state:
-            output.append(next(self))
-        return Bits(output)
+        """initial_state = self.state.copy()
+        output_bits = [self.state[-1]]
+        while True:
+            next_bit = next(self)
+            if self.state == initial_state:
+                break
+            output_bits.append(next_bit)
+        return Bits(output_bits)"""
+    
+        seen_states = set()
+        output_bits = []
+
+        while True:
+            state_tuple = tuple(self.state.bits)
+            if state_tuple in seen_states:
+                break
+            seen_states.add(state_tuple)
+
+            output_bits.append(self.state[-1])
+            next(self)
+
+        return Bits(output_bits)
 
     def __str__(self):
         return f"LFSR(state={str(self.state)}, poly={self.poly})"
@@ -63,7 +83,7 @@ def berlekamp_massey(bits):
     r = 1                      
 
     for t in range(N):
-        # Compute discrepancy d
+        # compute discrepancy d
         d = 0
         for i in range(len(P)):
             if t - i >= 0:
@@ -72,7 +92,7 @@ def berlekamp_massey(bits):
         if d == 1:
             if 2 * m <= t:
                 R = P.copy()
-                shifted_Q = Q.copy().pad_left(r)  # Left shift Q by r
+                shifted_Q = Q.copy().pad_left(r)  # left shift Q by r
                 # equalize lengths
                 max_len = max(len(P), len(shifted_Q))
                 P = P.pad_right(max_len - len(P))
@@ -82,7 +102,7 @@ def berlekamp_massey(bits):
                 m = t + 1 - m
                 r = 0
             else:
-                shifted_Q = Q.copy().pad_left(r)  # Left shift Q by r
+                shifted_Q = Q.copy().pad_left(r)  # left shift Q by r
                 max_len = max(len(P), len(shifted_Q))
                 P = P.pad_right(max_len - len(P))
                 shifted_Q = shifted_Q.pad_right(max_len - len(shifted_Q))

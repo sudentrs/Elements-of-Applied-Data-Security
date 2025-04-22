@@ -14,16 +14,14 @@ class Bits:
         else:  
             self.bits = [bool(b) for b in value]
     
-    """def __getitem__(self, index):
+    def __getitem__(self, index):
         if isinstance(index, slice):
             return Bits(self.bits[index])
-        elif isinstance(index, int):
+        elif type(index) is int:
             if index < 0:
                 index += len(self.bits)
             if index < 0 or index >= len(self.bits):
                 raise IndexError("Index out of range")
-        return self.bits[index]"""
-    def __getitem__(self, index):
         return self.bits[index]
     
     def __setitem__(self, index, value):
@@ -39,7 +37,7 @@ class Bits:
         return ''.join(['1' if bit else '0' for bit in self.bits])
     
     def __repr__(self):
-        return f"Bits({self.bits})"
+        return f"Bits({''.join(['1' if bit else '0' for bit in self.bits])})"
     
     def append(self, bit):
         self.bits.append(bool(bit))
@@ -78,26 +76,23 @@ class Bits:
             for i in range(0, len(padded), 8)
         )
     
-    """function for padding bits to the left"""
     def pad_left(self, length):
         if length < 0:
             raise ValueError("Length must be non-negative")
         self.bits = [False] * length + self.bits
         return self
-    
-    """function for padding bits to the right"""
+
     def pad_right(self, length):
         if length < 0:
             raise ValueError("Length must be non-negative")
         self.bits = self.bits + [False] * length
         return self
     
-    """a copy function"""
     def copy(self):
         return Bits(self.bits[:])
     
 def polynomial_to_bits(degrees):
-    """ input polnomial degress: {5, 2, 0}
+    """ input polnomial degress: {5, 3, 0}
         output bits: {1, 0, 1, 0, 0, 1} -> {p_1, ..., p_m-1, p_m}"""
     max_deg = max(degrees)
     bit_list = [1 if i in degrees else 0 for i in range(max_deg+1)]

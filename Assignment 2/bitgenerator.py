@@ -24,20 +24,14 @@ class AlternatingStep:
             bit0 = self.lfsr0.output  # not clocked
         else:
             bit0 = next(self.lfsr0)
-            bit1 = self.lfsr1.output
+            bit1 = self.lfsr1.output # not clocked
 
         self.output = bit0 ^ bit1
         return self.output
 
-    def run(self, op):
+    def run(self, N):
+        """Returns the next N bits of the bit-generator (current output is not included)."""
         output_sequence = []
-        for _ in range(op):
+        for _ in range(N):
             output_sequence.append(next(self))
         return Bits(output_sequence)
-
-
-"""print(f"t=0   LFSRC={self.lfsrC.state} bc={self.lfsrC.output}   LFSR0={self.lfsr0.state} b0={self.lfsr0.output}   LFSR1={self.lfsr1.state} b1={self.lfsr1.output}   output={self.output}")
-        output_sequence = []
-        for t in range(op):
-            output_sequence.append(next(self))
-            print(f"t={t+1}   LFSRC={self.lfsrC.state} bc={self.lfsrC.output}   LFSR0={self.lfsr0.state} b0={self.lfsr0.output}   LFSR1={self.lfsr1.state} b1={self.lfsr1.output}   output={self.output}")"""
