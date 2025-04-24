@@ -3,7 +3,7 @@ from bits import Bits, polynomial_to_bits
 class LFSR:
     
     def __init__(self, poly, state=None):       
-        self.poly = sorted(set(poly))
+        self.poly = set(poly)   # make it set
         self.length = max(self.poly)
         self.poly_bits = polynomial_to_bits(self.poly)[1:] # ignore p_0
 
@@ -15,7 +15,7 @@ class LFSR:
             self.state = Bits(state, length=self.length)
 
         self.output = self.state[-1]
-        self.feedback = None
+        self.feedback = False
 
     def __iter__(self):
         return self

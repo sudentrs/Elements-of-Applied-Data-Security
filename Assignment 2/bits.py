@@ -10,9 +10,12 @@ class Bits:
             self.bits = [bit == '1' for bit in bin_str]    
         elif type(value) is bytes:
             bit_str = ''.join(format(byte, '08b') for byte in value)
-            self.bits = [bit == '1' for bit in bit_str]       
+            self.bits = [bit == '1' for bit in bit_str]     
         else:  
             self.bits = [bool(b) for b in value]
+            
+        if length is not None:
+                self.bits = self.bits[:length]
     
     def __getitem__(self, index):
         if isinstance(index, slice):
