@@ -15,7 +15,7 @@ class LFSR:
             self.state = Bits(state, length=self.length)
 
         self.output = self.state[-1]
-        self.feedback = False
+        self.feedback = (self.poly_bits & self.state).parity_bit()
 
     def __iter__(self):
         return self
@@ -35,8 +35,8 @@ class LFSR:
             else:
                 self.state = Bits(state, length=self.length)
 
-        output_bits = [self.state[-1]]
-        for i in range(1, N):
+        output_bits = []
+        for i in range(N):
             output_bits.append(next(self))
         return Bits(output_bits)
 
@@ -61,13 +61,13 @@ class LFSR:
         output_bits = []
 
         while True:
+            next_bit = next(self)
             state_tuple = tuple(self.state.bits)
             if state_tuple in seen_states:
                 break
             seen_states.add(state_tuple)
 
-            output_bits.append(self.state[-1])
-            next(self)
+            output_bits.append(next_bit)
 
         return Bits(output_bits)
 

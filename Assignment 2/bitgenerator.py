@@ -7,7 +7,7 @@ class AlternatingStep:
         if seed is None:
             seed = [1] * (max(polyC) + max(poly0) + max(poly1))
         else:
-            seed = Bits(seed)
+            seed = Bits(seed).pad_left((max(polyC) + max(poly0) + max(poly1)) - len(Bits(seed)))
             
         self.lfsrC = LFSR(polyC, state=Bits(seed[:max(polyC)]))
         self.lfsr0 = LFSR(poly0, state=Bits(seed[max(polyC):max(polyC) + max(poly0)]))

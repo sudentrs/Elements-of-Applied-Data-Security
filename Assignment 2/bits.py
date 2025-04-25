@@ -31,7 +31,7 @@ class Bits:
         self.bits[index] = bool(value)
     
     def parity_bit(self):   
-        return sum(self.bits) % 2
+        return sum(self.bits) % 2 == 1
     
     def __len__(self):
         return len(self.bits)
