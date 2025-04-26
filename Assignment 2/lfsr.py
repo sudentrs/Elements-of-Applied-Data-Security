@@ -3,7 +3,7 @@ from bits import Bits, polynomial_to_bits
 class LFSR:
     
     def __init__(self, poly, state=None):       
-        self.poly = set(poly)   # make it set
+        self.poly = set(poly) 
         self.length = max(self.poly)
         self.poly_bits = polynomial_to_bits(self.poly)[1:] # ignore p_0
 
@@ -21,14 +21,13 @@ class LFSR:
         return self
 
     def __next__(self):
-        #print(f"poly_bits: {self.poly_bits}, state: {self.state}")
         self.feedback = (self.poly_bits & self.state).parity_bit()
         self.state = Bits([self.feedback]) + self.state[:-1]
         self.output = self.state[-1]
         return self.output
 
     def run_steps(self, N=1, state=None):
-        """Returns the next N bits of the LFSR starting from the given state."""
+        """Returns the next N bits of the LFSR starting from the next state."""
         if state is not None:
             if type(state) is Bits:
                 self.state = Bits(state.bits[:self.length])
@@ -41,21 +40,12 @@ class LFSR:
         return Bits(output_bits)
 
     def cycle(self, state=None):
-        """Returns the cycle of the LFSR starting from the given state."""
+        """Returns the cycle of the LFSR starting from the next state."""
         if state is not None:
             if type(state) is Bits:
                 self.state = Bits(state.bits[:self.length])
             else:
                 self.state = Bits(state, length=self.length)
-
-        """initial_state = self.state.copy()
-        output_bits = [self.state[-1]]
-        while True:
-            next_bit = next(self)
-            if self.state == initial_state:
-                break
-            output_bits.append(next_bit)
-        return Bits(output_bits)"""
     
         seen_states = set()
         output_bits = []
