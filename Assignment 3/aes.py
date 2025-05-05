@@ -4,29 +4,29 @@ class AES:
     def __init__(self, key: bytes):
 
         if isinstance(key, str):
-            key = key.encode()
+            key = key.encode('utf-8')
 
         if len(key) != 16:
             raise ValueError("the key should be 16 bytes!!!!")
 
         self.key = key
-        self.Nr = 10 
+        self.loop = 10 
         self.round_keys = self.key_expansion()
 
     def encrypt(self, plaintext: bytes):
         if isinstance(plaintext, str):
-            plaintext = plaintext.encode()
+            plaintext = plaintext.encode('utf-8')
 
         if len(plaintext) != 16:
-            raise ValueError("input should be 16 bytes!!!.")
+            raise ValueError("input should be 16 bytes!!!")
 
         state = np.frombuffer(plaintext, dtype=np.uint8).reshape(4, 4).T
         state = self.add_round_key(state, self.round_keys[0])
 
-        for round_num in range(1, self.Nr):
+        for round_num in range(1, self.loop):
             state = self.round(state, self.round_keys[round_num])
 
-        state = self.final_round(state, self.round_keys[self.Nr])
+        state = self.final_round(state, self.round_keys[self.loop])
         return state.T.flatten().tobytes()
 
     def key_expansion(self):
