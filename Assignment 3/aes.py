@@ -194,6 +194,68 @@ class AES:
             #state = self.final_round(state, round_keys[num_round])
 
         return self.to_bytes(state)
+    
+    def decrypt(self, ciphertext):
+        if len(ciphertext) != 16:
+            raise ValueError("Ciphertext must be 16 bytes long")
+
+        Nr = {16: 10, 24: 12, 32: 14}[len(self.key)]
+        round_keys = self.key_expansion()
+
+        state = self.to_matrix(ciphertext)
+        state = self.add_round_key(state, round_keys[Nr])
+
+        for i in range(Nr - 1, 0, -1):
+            state = self.inverse_round(state, round_keys[i])
+
+        state = self.inverse_final_round(state, round_keys[0])
+        return self.to_bytes(state)
+
+    @staticmethod
+    def inverse_byte_substitution(state):
+        return [[AES.inverse_s_box[b] for b in row] for row in state]
+
+    @staticmethod
+    def inverse_shift_rows(state):
+        return [
+            state[0],
+            state[1][-1:] + state[1][:-1],
+            state[2][-2:] + state[2][:-2],
+            state[3][-3:] + state[3][:-3],
+        ]
+
+    @staticmethod
+    def inverse_mix_column(state):
+        for i in range(4):
+            col = [state[j][i] for j in range(4)]
+            mixed_col = AES.inverse_mix_single_column(col)
+            for j in range(4):
+                state[j][i] = mixed_col[j]
+        return state
+
+    @staticmethod
+    def inverse_mix_single_column(col):
+        a0, a1, a2, a3 = col
+        r0 = AES.mul_by_0E(a0) ^ AES.mul_by_0B(a1) ^ AES.mul_by_0D(a2) ^ AES.mul_by_09(a3)
+        r1 = AES.mul_by_09(a0) ^ AES.mul_by_0E(a1) ^ AES.mul_by_0B(a2) ^ AES.mul_by_0D(a3)
+        r2 = AES.mul_by_0D(a0) ^ AES.mul_by_09(a1) ^ AES.mul_by_0E(a2) ^ AES.mul_by_0B(a3)
+        r3 = AES.mul_by_0B(a0) ^ AES.mul_by_0D(a1) ^ AES.mul_by_09(a2) ^ AES.mul_by_0E(a3)
+        return [r0, r1, r2, r3]
+
+    @staticmethod
+    def inverse_round(state, round_key):
+        state = AES.add_round_key(state, round_key)
+        state = AES.inverse_mix_column(state)
+        state = AES.inverse_shift_rows(state)
+        state = AES.inverse_byte_substitution(state)
+        return state
+
+    @staticmethod
+    def inverse_final_round(state, round_key):
+        state = AES.add_round_key(state, round_key)
+        state = AES.inverse_shift_rows(state)
+        state = AES.inverse_byte_substitution(state)
+        return state
 
 
 
