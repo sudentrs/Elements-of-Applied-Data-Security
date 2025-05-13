@@ -212,8 +212,20 @@ class AES:
         return self.to_bytes(state)
 
     @staticmethod
+    def gf_inverse(byte):
+        if byte == 0:
+            raise ValueError("No inverse for 0 in GF(2^8)")
+        r0, r1 = 0x11b, byte
+        t0, t1 = 0, 1
+        while r1 != 0:
+            q = r0 // r1
+            r0, r1 = r1, r0 ^ (q * r1)
+            t0, t1 = t1, t0 ^ (q * t1)
+        return t0 & 0xFF
+
+    @staticmethod
     def inverse_byte_substitution(state):
-        return [[AES.inverse_s_box[b] for b in row] for row in state]
+        return [[AES.gf_inverse(b) for b in row] for row in state]
 
     @staticmethod
     def inverse_shift_rows(state):
