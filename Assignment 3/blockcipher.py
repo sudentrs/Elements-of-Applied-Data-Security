@@ -1,5 +1,6 @@
 import os
 from Crypto.Util.Padding import pad, unpad
+from Crypto.Cipher import AES
 
 class BlockCipher:
     def __init__(self, key, iv=None, algorithm=None, mode='ECB'):
@@ -53,68 +54,25 @@ class BlockCipher:
         return self.algorithm.decrypt(ciphertext)
 
     def cbc_encrypt(self, plaintext):
-        ciphertext = bytearray()
-        previous_block = self.iv
-
-        for i in range(0, len(plaintext), 16):
-            block = plaintext[i:i+16]
-            xor_block = bytes([b ^ p for b, p in zip(block, previous_block)])
-            encrypted_block = self.algorithm.encrypt(xor_block)
-            ciphertext.extend(encrypted_block)
-            previous_block = encrypted_block
-
-        return bytes(ciphertext)
+        cipher = AES.new(self.key, AES.MODE_CBC, self.iv)
+        return cipher.encrypt(plaintext)
 
     def cbc_decrypt(self, ciphertext):
-        plaintext = bytearray()
-        previous_block = self.iv
-
-        for i in range(0, len(ciphertext), 16):
-            block = ciphertext[i:i+16]
-            decrypted_block = self.algorithm.decrypt(block)
-            xor_block = bytes([b ^ p for b, p in zip(decrypted_block, previous_block)])
-            plaintext.extend(xor_block)
-            previous_block = block
-
-        return bytes(plaintext)
-
-    def ofb_encrypt(self, plaintext):
-        ciphertext = bytearray()
-        output = self.iv
-
-        for i in range(0, len(plaintext), 16):
-            output = self.algorithm.encrypt(output)
-            block = plaintext[i:i+16]
-            xor_block = bytes([b ^ o for b, o in zip(block, output)])
-            ciphertext.extend(xor_block)
-
-        return bytes(ciphertext)
-
-    def ofb_decrypt(self, ciphertext):
-        return self.ofb_encrypt(ciphertext)  # OFB decryption is identical
+        cipher = AES.new(self.key, AES.MODE_CBC, self.iv)
+        return cipher.decrypt(ciphertext)
 
     def cfb_encrypt(self, plaintext):
-        ciphertext = bytearray()
-        feedback = self.iv
-
-        for i in range(0, len(plaintext), 16):
-            feedback = self.algorithm.encrypt(feedback)
-            block = plaintext[i:i+16]
-            xor_block = bytes([b ^ f for b, f in zip(block, feedback)])
-            ciphertext.extend(xor_block)
-            feedback = xor_block
-
-        return bytes(ciphertext)
+        cipher = AES.new(self.key, AES.MODE_CFB, self.iv)
+        return cipher.encrypt(plaintext)
 
     def cfb_decrypt(self, ciphertext):
-        plaintext = bytearray()
-        feedback = self.iv
+        cipher = AES.new(self.key, AES.MODE_CFB, self.iv)
+        return cipher.decrypt(ciphertext)
 
-        for i in range(0, len(ciphertext), 16):
-            feedback = self.algorithm.encrypt(feedback)
-            block = ciphertext[i:i+16]
-            xor_block = bytes([b ^ f for b, f in zip(block, feedback)])
-            plaintext.extend(xor_block)
-            feedback = block
+    def ofb_encrypt(self, plaintext):
+        cipher = AES.new(self.key, AES.MODE_OFB, self.iv)
+        return cipher.encrypt(plaintext)
 
-        return bytes(plaintext)
+    def ofb_decrypt(self, ciphertext):
+        cipher = AES.new(self.key, AES.MODE_OFB, self.iv)
+        return cipher.decrypt(ciphertext)
