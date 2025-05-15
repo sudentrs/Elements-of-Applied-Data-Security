@@ -17,6 +17,7 @@ class AES:
         Nr = 10
 
         round_keys = self.key_expansion()
+        round_keys = AES.key_schedule(round_keys)
         state = AES.to_matrix(plaintext)
         state = self.add_round_key(state, round_keys[0])
 
@@ -72,24 +73,28 @@ class AES:
             for j in range(4):
                 new_state[j][i] = mixed_col[j]
         return AES.to_bytes(new_state)
-
+        
     def key_expansion(self):
         key_bytes = list(self.key)
         Nk = 4
         Nr = 10
         RC = [0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36]
 
-        key_schedule = key_bytes[:]
+        key_schedule = bytes(key_bytes)
 
         while len(key_schedule) < 4 * (Nr + 1) * 4:
-            temp = key_schedule[-4:]
+            temp = list(key_schedule[-4:])
             if len(key_schedule) % (Nk * 4) == 0:
                 temp = AES.g(temp, RC[len(key_schedule) // (Nk * 4) - 1])
             for i in range(4):
                 temp[i] ^= key_schedule[-Nk * 4 + i]
-            key_schedule.extend(temp)
+            key_schedule += bytes(temp)
 
-        return [key_schedule[i:i+16] for i in range(0, len(key_schedule), 16)]
+        return key_schedule
+
+    @staticmethod
+    def key_schedule(expanded_key):
+        return [list(expanded_key[i:i+16]) for i in range(0, len(expanded_key), 16)]
 
     @staticmethod
     def g(word, rc_i):
