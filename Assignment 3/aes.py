@@ -116,8 +116,9 @@ class AES:
             return self.encrypt(plaintext)
 
         round_keys = self.key_expansion()
-        state = AES.to_matrix(plaintext)
-        state = self.add_round_key(state, round_keys[0])
+        round_keys = AES.key_schedule(round_keys)
+
+        state = self.add_round_key(AES.to_matrix(plaintext), round_keys[0])
 
         for i in range(1, num_round + 1):
             state = self.round(state, round_keys[i])
