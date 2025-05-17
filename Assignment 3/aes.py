@@ -8,7 +8,6 @@ class AES:
             raise ValueError("plaintext is not 16 bytes long")
         
         round_keys = self.key_expansion()
-        round_keys = AES.key_schedule(round_keys)
         
         Nr = 10
         state = self.add_round_key(plaintext, round_keys[0])
@@ -80,11 +79,7 @@ class AES:
                 temp[i] ^= key_schedule[-Nk * 4 + i]
             key_schedule += bytes(temp)
 
-        return key_schedule
-
-    @staticmethod
-    def key_schedule(expanded_key):
-        return [list(expanded_key[i:i+16]) for i in range(0, len(expanded_key), 16)]
+        return [list(key_schedule[i:i+16]) for i in range(0, len(key_schedule), 16)]
 
     @staticmethod
     def g(word, rc_i):
@@ -108,19 +103,18 @@ class AES:
         state = AES.add_round_key(state, round_key)
         return state  
 
-    def partially_encrypt(self, plaintext, num_round=None):
+    def partially_encrypt(self, plaintext, num_rounds=None):
         if len(plaintext) != 16:
             raise ValueError("Plaintext must be 16 bytes long")
         
-        if num_round is None or num_round >= 10:
+        if num_rounds is None or num_rounds >= 10:
             return self.encrypt(plaintext)
 
         round_keys = self.key_expansion()
-        round_keys = AES.key_schedule(round_keys)
 
         state = self.add_round_key(AES.to_matrix(plaintext), round_keys[0])
 
-        for i in range(1, num_round + 1):
+        for i in range(1, num_rounds + 1):
             state = self.round(state, round_keys[i])
         return state
     
@@ -129,7 +123,6 @@ class AES:
             raise ValueError("Ciphertext must be 16 bytes long")
         
         round_keys = self.key_expansion()
-        round_keys = AES.key_schedule(round_keys)
         
         Nr = 10
         state = self.add_round_key(AES.to_matrix(ciphertext), round_keys[Nr])
