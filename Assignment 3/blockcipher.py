@@ -7,7 +7,7 @@ class BlockCipher:
         self.algorithm = algorithm(key)
         self.mode = mode
 
-        # Random IV if not provided
+        # random IV if not provided
         if iv is None:
             self.iv = os.urandom(16)
         else:
@@ -32,8 +32,8 @@ class BlockCipher:
             return self.cfb_encrypt(plaintext)
         elif self.mode == 'OFB':
             return self.ofb_encrypt(plaintext)
-        #else:
-            #raise ValueError("Unsupported mode")
+        else:
+            raise ValueError("Unsupported mode")
 
     def decrypt(self, ciphertext):
         if self.mode == 'ECB':
@@ -44,8 +44,8 @@ class BlockCipher:
             decrypted = self.cfb_decrypt(ciphertext)
         elif self.mode == 'OFB':
             decrypted = self.ofb_decrypt(ciphertext)
-        #else:
-            #raise ValueError("Unsupported mode")
+        else:
+            raise ValueError("Unsupported mode")
 
         return self.unpad(decrypted)
 
